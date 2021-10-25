@@ -1,6 +1,21 @@
 # =============================================================================
 #                                   Functions
 # =============================================================================
+update_dignio_packer() {
+    pipenv run build_packer dev.dignio.com &
+    pipenv run build_packer staging.dignio.com &
+    pipenv run build_packer alfa2.dignio.com &
+    pipenv run build_packer experimental.dignio.com &
+    pipenv run build_packer is.dignio.com &
+    pipenv run build_packer uk.dignio.com &
+    pipenv run build_packer app.dignio.com &
+    pipenv run build_packer posifon.dignio.com &
+    # pipenv run build_packer se.dignio.com &
+    pipenv run build_packer us.dignio.com &
+    pipenv run build_packer prevent.dignio.cn &
+    pipenv run build_packer staging.dignio.cn
+}
+
 powerlevel9k_random_color(){
 	local code
 	#for code ({000..255}) echo -n "$%F{$code}"
