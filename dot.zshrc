@@ -1,22 +1,7 @@
 # =============================================================================
 #                                   Functions
 # =============================================================================
-update_dignio_packer() {
-    pipenv run build_packer dev.dignio.com &
-    pipenv run build_packer staging.dignio.com &
-    pipenv run build_packer alfa2.dignio.com &
-    pipenv run build_packer experimental.dignio.com &
-    pipenv run build_packer is.dignio.com &
-    pipenv run build_packer uk.dignio.com &
-    pipenv run build_packer app.dignio.com &
-    pipenv run build_packer posifon.dignio.com &
-    # pipenv run build_packer se.dignio.com &
-    pipenv run build_packer us.dignio.com &
-    pipenv run build_packer prevent.dignio.cn &
-    pipenv run build_packer staging.dignio.cn
-}
-
-powerlevel9k_random_color(){
+powerlevel10k_random_color(){
 	local code
 	#for code ({000..255}) echo -n "$%F{$code}"
 	#code=$[${RANDOM}%11+10]    # random between 10-20
@@ -40,14 +25,17 @@ function add-secret() {
 # =============================================================================
 #                                   Variables
 # =============================================================================
+export GPG_TTY=$(tty)
 export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 
 # =============================================================================
 #                                   Plugins
 # =============================================================================
-# Check if zplug is installed
+# Set up theme
+source ~/powerlevel10k/powerlevel10k.zsh-theme
 
+# Check if zplug is installed
 [ ! -d ~/.zplug ] && git clone https://github.com/zplug/zplug ~/.zplug
 source ~/.zplug/init.zsh
 
@@ -156,16 +144,14 @@ zplug "arzzen/calc.plugin.zsh"
 # Directory colors
 zplug "seebi/dircolors-solarized", ignore:"*", as:plugin
 
-# Load theme
-zplug "bhilburn/powerlevel9k", use:powerlevel9k.zsh-theme
 
 # Theme setup
 
 # Easily switch primary foreground/background colors
-DEFAULT_FOREGROUND=006 DEFAULT_BACKGROUND=$PRIMARY_FG
+DEFAULT_FOREGROUND=006 DEFAULT_BACKGROUND=236
 DEFAULT_COLOR=$DEFAULT_FOREGROUND
 
-# powerlevel9k prompt theme
+# powerlevel10k prompt theme
 #DEFAULT_USER=$USER
 
 POWERLEVEL9K_MODE="nerdfont-complete"
@@ -181,7 +167,7 @@ POWERLEVEL9K_CONTEXT_TEMPLATE=""
 
 POWERLEVEL9K_CONTEXT_DEFAULT_FOREGROUND="black"
 #POWERLEVEL9K_CONTEXT_DEFAULT_BACKGROUND="111"  # blurple
-POWERLEVEL9K_CONTEXT_DEFAULT_BACKGROUND="226"
+POWERLEVEL9K_CONTEXT_DEFAULT_BACKGROUND="236"
 POWERLEVEL9K_CONTEXT_ROOT_FOREGROUND="black"
 POWERLEVEL9K_CONTEXT_ROOT_BACKGROUND="226"
 
@@ -228,7 +214,7 @@ POWERLEVEL9K_DIR_HOME_SUBFOLDER_FOREGROUND="$DEFAULT_BACKGROUND"
 POWERLEVEL9K_DIR_DEFAULT_BACKGROUND="$DEFAULT_FOREGROUND"
 POWERLEVEL9K_DIR_DEFAULT_FOREGROUND="$DEFAULT_BACKGROUND"
 POWERLEVEL9K_DIR_WRITABLE_FORBIDDEN_BACKGROUND="$DEFAULT_FOREGROUND"
-POWERLEVEL9K_DIR_WRITABLE_FORBIDDEN_FOREGROUND="black"
+POWERLEVEL9K_DIR_WRITABLE_FORBIDDEN_FOREGROUND="$DEFAULT_BACKGROUND"
 POWERLEVEL9K_HOME_FOLDER_ABBREVIATION=""
 
 POWERLEVEL9K_STATUS_OK_FOREGROUND="$DEFAULT_FOREGROUND"
@@ -395,7 +381,7 @@ alias rm='rm -v'
 
 # Directory management
 alias la='ls -a'
-alias ll='ls -l'
+alias ll='ls -llah'
 alias lal='ls -al'
 alias d='dirs -v'
 alias 1='pu'
@@ -551,39 +537,21 @@ fi
 
 # vim: ft=zsh
 
-
-# TILIX FIX
-if [ $TILIX_ID ] || [ $VTE_VERSION ]; then
-        source /etc/profile.d/vte.sh
-fi
-
-# aliases
-alias deploy_devel='fab develenv deploy'
-alias deploy_unstable='fab unstableenv deploy'
-alias deploy_test='fab develenv testdb deploy'
-alias win='sudo grub-reboot 2; reboot'
-alias windows='sudo grub-reboot 2; reboot'
-alias unfuck_monitor='xrandr --output DP-1 --mode 5120x1440 --rate 59.98'
-alias aws2='/usr/local/bin/aws'
+# Aliases
+alias run="screen -d -m"
+alias {ex,explorer,files}="explorer.exe ."
 
 # environment variables
 export VIRTUALENV_ALWAYS_COPY=1
 export PIPENV_VENV_IN_PROJECT=1
 export PIPENV_IGNORE_VIRTUALENVS=1
-export PYTHONPATH="${PYTHONPATH}:~/git/dignio/v2-server"
-export KUBECONFIG="/home/$USER/.kube/pydis-kubeconfig.yaml"
-export JAVA_HOME="/usr/lib/jvm/java-8-openjdk-amd64"
-export ANDROID_HOME="/home/$USER/Android/Sdk"
+export KUBECONFIG="/home/$USER/.kube/dignio-kubeconfig.yaml"
+export SCREENDIR=$HOME/.screen
 
 # Add stuff to path
+export PATH="$HOME/.poetry/bin:$PATH"
+export PATH=~/.node/bin:$PATH
 export PATH="/home/leon/.local/bin:$PATH"
-export PATH="/home/linuxbrew/.linuxbrew/bin:$PATH"
-export MANPATH="/home/linuxbrew/.linuxbrew/share/man:$MANPATH"
-export INFOPATH="/home/linuxbrew/.linuxbrew/share/info:$INFOPATH"
-export PATH="/home/linuxbrew/.linuxbrew/opt/openjdk/bin:$PATH"
-export SELENIUM_DRIVER="/usr/local/bin/chromedriver"
-
-# pyenv
 export PYENV_ROOT="$HOME/.pyenv"
 export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init --path)"
@@ -605,13 +573,25 @@ eval $(thefuck --alias fuuuck)
 eval $(thefuck --alias fuuuuck)
 eval $(thefuck --alias ffs)
 
+# Kubecolor alias
+command -v kubecolor >/dev/null 2>&1 && alias kubectl="kubecolor"
+
+# Kubectx autocomplete
+[[ $commands[kubectl] ]] && source <(kubectl completion zsh)
+
 # Set up the GDrive, if it doesn't already exist.
 if [[ ! -e ~/GDrive/terraform-config ]]; then
   google-drive-ocamlfuse ~/GDrive
 fi
 
-export PATH="$HOME/.poetry/bin:$PATH"
-
-
 # direnv
 eval "$(direnv hook zsh)"
+
+# GPG Socket
+# Removing Linux GPG Agent socket and replacing it by link to wsl2-ssh-pageant GPG socket
+export GPG_AGENT_SOCK=$HOME/.gnupg/S.gpg-agent
+ss -a | grep -q $GPG_AGENT_SOCK
+if [ $? -ne 0 ]; then
+  rm -rf $GPG_AGENT_SOCK
+  setsid nohup socat UNIX-LISTEN:$GPG_AGENT_SOCK,fork EXEC:"$HOME/.ssh/wsl2-ssh-pageant.exe --gpg S.gpg-agent" &>/dev/null &
+fi
