@@ -26,7 +26,7 @@ ok "zsh is installed"
 # --- Make zsh default shell ---
 if [ "$SHELL" != "$(command -v zsh)" ]; then
     info "Setting zsh as default shell..."
-    chsh -s "$(command -v zsh)" </dev/tty || warn "Couldn't change default shell. Run: chsh -s $(command -v zsh)"
+    sudo chsh -s "$(command -v zsh)" "$USER" || warn "Couldn't change default shell. Run: sudo chsh -s $(command -v zsh) $USER"
 fi
 
 # --- Install starship ---
@@ -98,7 +98,7 @@ FONT_NAME="MesloLGS Nerd Font"
 if ! fc-list 2>/dev/null | grep -qi "MesloLGS"; then
     info "Installing $FONT_NAME..."
     mkdir -p "$FONT_DIR"
-    MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.tar.xz"
+    MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
     tmp_archive="$(mktemp)"
     curl -fsSL "$MESLO_URL" -o "$tmp_archive"
     # Extract only MesloLGS variants into the font directory
