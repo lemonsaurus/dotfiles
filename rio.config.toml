@@ -400,7 +400,7 @@ decorations = "enabled"
 
 # Fonts
 [fonts]
-size = 17
+size = 14
 
 [fonts.regular]
 family = "MesloLGS Nerd Font"

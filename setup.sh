@@ -163,6 +163,7 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
                 Add-Type -AssemblyName System.Drawing
                 (New-Object System.Drawing.Text.InstalledFontCollection).Families |
                     Where-Object { $_.Name -match "Nerd|NF" } |
+                    Sort-Object { if ($_.Name -match "Meslo") { 0 } else { 1 } } |
                     Select-Object -First 1 -ExpandProperty Name
             ' 2>/dev/null | tr -d '\r')
         fi
