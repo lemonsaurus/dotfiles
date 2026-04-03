@@ -14,7 +14,7 @@ Opinionated terminal setup for my personal machines. This is public because ther
 SSH into any box, run this, and you're home:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/lemonsaurus/dotfiles/main/setup.sh | bash
+curl -fsSL "https://raw.githubusercontent.com/lemonsaurus/dotfiles/main/setup.sh?$(date +%s)" | bash
 ```
 
 This installs zsh (set as default shell), starship, zsh plugins, eza, and bat, then drops all configs into place. On WSL it also installs the Rio config and theme on the Windows side.
