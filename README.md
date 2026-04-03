@@ -1,4 +1,14 @@
-# Lemon's Dotfiles
+<p align="center">
+  <img src="dotfiles.png" alt="dotfiles" width="100%">
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/works_on-my_machine-green?style=flat-square" alt="works on my machine">
+  <img src="https://img.shields.io/badge/powered_by-caffeine_and_spite-red?style=flat-square" alt="powered by caffeine and spite">
+  <img src="https://img.shields.io/badge/vibe-immaculate-blueviolet?style=flat-square" alt="vibe: immaculate">
+  <img src="https://img.shields.io/badge/stealing_encouraged-just_don't_blame_me-orange?style=flat-square" alt="stealing encouraged">
+  <img src="https://img.shields.io/badge/PRs-lol_no-critical?style=flat-square" alt="PRs: lol no">
+</p>
 
 Opinionated terminal setup for my personal machines. This is public because there's nothing secret here, but it's built entirely around my own preferences — probably not useful to you unless you're curious or want to steal a color scheme.
 
