@@ -154,30 +154,29 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
 
     if [ -d "/mnt/c/Users/$WIN_USER" ]; then
         # --- Detect or install a Nerd Font on Windows ---
-        SYS_FONT_DIR="/mnt/c/Windows/Fonts"
-        USER_FONT_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/Microsoft/Windows/Fonts"
+        POWERSHELL="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe"
         RIO_FONT=""
 
-        # Look for an existing Nerd Font in system fonts first, then user fonts
-        for font_dir in "$SYS_FONT_DIR" "$USER_FONT_DIR"; do
-            match=$(/bin/ls "$font_dir"/*NerdFont-Regular.ttf 2>/dev/null | head -1)
-            if [ -n "$match" ]; then
-                # Extract family name from filename: FooBarNerdFont-Regular.ttf -> FooBar Nerd Font
-                basename=$(basename "$match" .ttf)                  # FooBarNerdFont-Regular
-                basename=${basename%-Regular}                       # FooBarNerdFont
-                RIO_FONT=$(echo "$basename" | sed 's/NerdFont/ Nerd Font/')  # FooBar Nerd Font
-                ok "Found Nerd Font on Windows: $RIO_FONT"
-                break
-            fi
-        done
+        # Ask Windows for the real font family names — filenames are unreliable
+        if [ -x "$POWERSHELL" ]; then
+            RIO_FONT=$("$POWERSHELL" -NoProfile -Command '
+                Add-Type -AssemblyName System.Drawing
+                (New-Object System.Drawing.Text.InstalledFontCollection).Families |
+                    Where-Object { $_.Name -match "Nerd|NF" } |
+                    Select-Object -First 1 -ExpandProperty Name
+            ' 2>/dev/null | tr -d '\r')
+        fi
 
-        # If no Nerd Font found, install MesloLGS to system fonts (needs admin)
-        if [ -z "$RIO_FONT" ]; then
+        if [ -n "$RIO_FONT" ]; then
+            ok "Found Nerd Font on Windows: $RIO_FONT"
+        else
+            # No Nerd Font found — install MesloLGS
             info "No Nerd Font found on Windows — installing $FONT_NAME..."
             MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
             tmp_archive="$(mktemp)"
             curl -fsSL "$MESLO_URL" -o "$tmp_archive"
-            # Try system fonts first (needs admin), fall back to user fonts
+            SYS_FONT_DIR="/mnt/c/Windows/Fonts"
+            USER_FONT_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/Microsoft/Windows/Fonts"
             if cp /dev/null "$SYS_FONT_DIR/.write-test" 2>/dev/null; then
                 rm -f "$SYS_FONT_DIR/.write-test"
                 tar -xJf "$tmp_archive" -C "$SYS_FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
