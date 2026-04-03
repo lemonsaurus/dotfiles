@@ -54,6 +54,8 @@ if ! command -v eza &>/dev/null; then
     else
         warn "Couldn't install eza automatically. Install it manually: https://eza.rocks"
     fi
+else
+    ok "eza is installed"
 fi
 
 # --- Install bat ---
@@ -68,6 +70,8 @@ if ! command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
     else
         warn "Couldn't install bat automatically. Install it manually: https://github.com/sharkdp/bat"
     fi
+else
+    ok "bat is installed"
 fi
 
 # --- Install zsh plugins ---
@@ -88,33 +92,60 @@ install_zsh_plugin "zsh-autosuggestions" "https://github.com/zsh-users/zsh-autos
 install_zsh_plugin "zsh-z"               "https://github.com/agkozak/zsh-z.git"
 install_zsh_plugin "zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
-# --- Deploy configs ---
-info "Installing starship config..."
-mkdir -p "$HOME/.config"
-curl -fsSL "$REPO/dot.starship.toml" -o "$HOME/.config/starship.toml"
-ok "starship.toml installed"
-
-info "Installing .zshrc..."
-if [ -f "$HOME/.zshrc" ]; then
-    cp "$HOME/.zshrc" "$HOME/.zshrc.bak"
-    warn "Backed up existing .zshrc to .zshrc.bak"
+# --- Install MesloLGS Nerd Font ---
+FONT_DIR="$HOME/.local/share/fonts"
+FONT_NAME="MesloLGS Nerd Font"
+if ! fc-list 2>/dev/null | grep -qi "MesloLGS"; then
+    info "Installing $FONT_NAME..."
+    mkdir -p "$FONT_DIR"
+    MESLO_VERSION="v3.4"
+    MESLO_BASE="https://github.com/ryanoasis/nerd-fonts/releases/download/${MESLO_VERSION}"
+    for style in Regular Bold Italic BoldItalic; do
+        curl -fsSL "${MESLO_BASE}/MesloLGSNerdFont-${style}.ttf" -o "${FONT_DIR}/MesloLGSNerdFont-${style}.ttf"
+    done
+    # Rebuild font cache if fc-cache is available
+    if command -v fc-cache &>/dev/null; then
+        fc-cache -f "$FONT_DIR"
+    fi
+    ok "$FONT_NAME installed"
+else
+    ok "$FONT_NAME already installed"
 fi
-curl -fsSL "$REPO/dot.zshrc" -o "$HOME/.zshrc"
-ok ".zshrc installed"
 
-# --- Terminal emulator setup (Ghostty on native Linux, Rio on WSL) ---
+# --- Deploy configs (only if changed) ---
+deploy_config() {
+    local url="$1" dest="$2" label="$3"
+    local tmp
+    tmp="$(mktemp)"
+    curl -fsSL "$url" -o "$tmp"
+    if [ -f "$dest" ] && cmp -s "$tmp" "$dest"; then
+        rm "$tmp"
+        ok "$label already up to date"
+    else
+        if [ -f "$dest" ]; then
+            cp "$dest" "${dest}.bak"
+            warn "Backed up existing $label to ${dest}.bak"
+        fi
+        mkdir -p "$(dirname "$dest")"
+        mv "$tmp" "$dest"
+        ok "$label installed"
+    fi
+}
+
+deploy_config "$REPO/dot.starship.toml" "$HOME/.config/starship.toml" "starship.toml"
+deploy_config "$REPO/dot.zshrc" "$HOME/.zshrc" ".zshrc"
+
+# --- WSL: Install Rio config on Windows side ---
 if grep -qi microsoft /proc/version 2>/dev/null; then
     info "WSL detected — installing Rio config on Windows side..."
 
     WIN_USER=$(/mnt/c/Windows/System32/cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
-    RIO_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/rio"
-    RIO_THEMES="$RIO_DIR/themes"
 
     if [ -d "/mnt/c/Users/$WIN_USER" ]; then
-        mkdir -p "$RIO_THEMES"
-        curl -fsSL "$REPO/rio.config.toml" -o "$RIO_DIR/config.toml"
-        curl -fsSL "$REPO/rio.themes.electron-highlighter.toml" -o "$RIO_THEMES/Electron Highlighter.toml"
-        ok "Rio config and theme installed"
+        RIO_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/rio"
+        mkdir -p "$RIO_DIR/themes"
+        deploy_config "$REPO/rio.config.toml" "$RIO_DIR/config.toml" "Rio config"
+        deploy_config "$REPO/rio.themes.electron-highlighter.toml" "$RIO_DIR/themes/Electron Highlighter.toml" "Rio theme"
     else
         warn "Couldn't find Windows user directory. Install Rio config manually."
     fi
