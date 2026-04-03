@@ -26,7 +26,7 @@ ok "zsh is installed"
 # --- Make zsh default shell ---
 if [ "$SHELL" != "$(command -v zsh)" ]; then
     info "Setting zsh as default shell..."
-    chsh -s "$(command -v zsh)" || warn "Couldn't change default shell. Run: chsh -s $(command -v zsh)"
+    chsh -s "$(command -v zsh)" </dev/tty || warn "Couldn't change default shell. Run: chsh -s $(command -v zsh)"
 fi
 
 # --- Install starship ---
@@ -98,11 +98,13 @@ FONT_NAME="MesloLGS Nerd Font"
 if ! fc-list 2>/dev/null | grep -qi "MesloLGS"; then
     info "Installing $FONT_NAME..."
     mkdir -p "$FONT_DIR"
-    MESLO_VERSION="v3.4"
-    MESLO_BASE="https://github.com/ryanoasis/nerd-fonts/releases/download/${MESLO_VERSION}"
-    for style in Regular Bold Italic BoldItalic; do
-        curl -fsSL "${MESLO_BASE}/MesloLGSNerdFont-${style}.ttf" -o "${FONT_DIR}/MesloLGSNerdFont-${style}.ttf"
-    done
+    MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.tar.xz"
+    tmp_archive="$(mktemp)"
+    curl -fsSL "$MESLO_URL" -o "$tmp_archive"
+    # Extract only MesloLGS variants into the font directory
+    tar -xJf "$tmp_archive" -C "$FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
+        || tar -xJf "$tmp_archive" -C "$FONT_DIR"
+    rm -f "$tmp_archive"
     # Rebuild font cache if fc-cache is available
     if command -v fc-cache &>/dev/null; then
         fc-cache -f "$FONT_DIR"
