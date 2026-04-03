@@ -26,7 +26,12 @@ ok "zsh is installed"
 # --- Make zsh default shell ---
 if [ "$SHELL" != "$(command -v zsh)" ]; then
     info "Setting zsh as default shell..."
-    sudo chsh -s "$(command -v zsh)" "$USER" || warn "Couldn't change default shell. Run: sudo chsh -s $(command -v zsh) $USER"
+    # Try non-interactive sudo first (works if sudo is cached), otherwise defer
+    if sudo -n chsh -s "$(command -v zsh)" "$USER" 2>/dev/null; then
+        ok "zsh is now the default shell"
+    else
+        warn "Run manually: sudo chsh -s $(command -v zsh) $USER"
+    fi
 fi
 
 # --- Install starship ---
