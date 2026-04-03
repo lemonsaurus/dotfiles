@@ -4,9 +4,7 @@
 
 <p align="center">
   <img src="https://img.shields.io/badge/works_on-my_machine-green?style=flat-square" alt="works on my machine">
-  <img src="https://img.shields.io/badge/powered_by-caffeine_and_spite-red?style=flat-square" alt="powered by caffeine and spite">
-  <img src="https://img.shields.io/badge/vibe-immaculate-blueviolet?style=flat-square" alt="vibe: immaculate">
-  <img src="https://img.shields.io/badge/stealing_encouraged-just_don't_blame_me-orange?style=flat-square" alt="stealing encouraged">
+  <img src="https://img.shields.io/badge/powered_by-caffeine_and_spite-red?style=flat-square" alt="hopes and dreams">
   <img src="https://img.shields.io/badge/PRs-lol_no-critical?style=flat-square" alt="PRs: lol no">
 </p>
 
