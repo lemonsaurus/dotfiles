@@ -98,25 +98,29 @@ install_zsh_plugin "zsh-z"               "https://github.com/agkozak/zsh-z.git"
 install_zsh_plugin "zsh-syntax-highlighting" "https://github.com/zsh-users/zsh-syntax-highlighting.git"
 
 # --- Install MesloLGS Nerd Font ---
-FONT_DIR="$HOME/.local/share/fonts"
+# Only install fonts locally — over SSH, the local terminal handles font rendering
 FONT_NAME="MesloLGS Nerd Font"
-if ! fc-list 2>/dev/null | grep -qi "MesloLGS"; then
-    info "Installing $FONT_NAME..."
-    mkdir -p "$FONT_DIR"
-    MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
-    tmp_archive="$(mktemp)"
-    curl -fsSL "$MESLO_URL" -o "$tmp_archive"
-    # Extract only MesloLGS variants into the font directory
-    tar -xJf "$tmp_archive" -C "$FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
-        || tar -xJf "$tmp_archive" -C "$FONT_DIR"
-    rm -f "$tmp_archive"
-    # Rebuild font cache if fc-cache is available
-    if command -v fc-cache &>/dev/null; then
-        fc-cache -f "$FONT_DIR"
-    fi
-    ok "$FONT_NAME installed"
+if [ -n "${SSH_CLIENT:-}${SSH_CONNECTION:-}" ]; then
+    info "SSH session detected — skipping font install (install $FONT_NAME on your local machine)"
 else
-    ok "$FONT_NAME already installed"
+    FONT_DIR="$HOME/.local/share/fonts"
+    if ! fc-list 2>/dev/null | grep -qi "MesloLGS"; then
+        info "Installing $FONT_NAME..."
+        mkdir -p "$FONT_DIR"
+        MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
+        tmp_archive="$(mktemp)"
+        curl -fsSL "$MESLO_URL" -o "$tmp_archive"
+        # Extract only MesloLGS variants into the font directory
+        tar -xJf "$tmp_archive" -C "$FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
+            || tar -xJf "$tmp_archive" -C "$FONT_DIR"
+        rm -f "$tmp_archive"
+        if command -v fc-cache &>/dev/null; then
+            fc-cache -f "$FONT_DIR"
+        fi
+        ok "$FONT_NAME installed"
+    else
+        ok "$FONT_NAME already installed"
+    fi
 fi
 
 # --- Deploy configs (only if changed) ---
@@ -149,6 +153,22 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
     WIN_USER=$(/mnt/c/Windows/System32/cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
 
     if [ -d "/mnt/c/Users/$WIN_USER" ]; then
+        # Install font on Windows side so Rio/terminal emulators can use it
+        WIN_FONT_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/Microsoft/Windows/Fonts"
+        if ! /bin/ls "$WIN_FONT_DIR"/MesloLGSNerdFont-* &>/dev/null; then
+            info "Installing $FONT_NAME on Windows side..."
+            mkdir -p "$WIN_FONT_DIR"
+            MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
+            tmp_archive="$(mktemp)"
+            curl -fsSL "$MESLO_URL" -o "$tmp_archive"
+            tar -xJf "$tmp_archive" -C "$WIN_FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
+                || tar -xJf "$tmp_archive" -C "$WIN_FONT_DIR"
+            rm -f "$tmp_archive"
+            ok "$FONT_NAME installed on Windows (you may need to restart Rio)"
+        else
+            ok "$FONT_NAME already installed on Windows"
+        fi
+
         RIO_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/rio"
         mkdir -p "$RIO_DIR/themes"
         deploy_config "$REPO/rio.config.toml" "$RIO_DIR/config.toml" "Rio config"
