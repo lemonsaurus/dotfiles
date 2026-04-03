@@ -10,7 +10,7 @@ export PATH=$HOME/.local/bin:$PATH
 source ~/.zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # zsh-z - jump to frequently used directories
-source ~/.zsh/zsh-z/z.sh
+source ~/.zsh/zsh-z/zsh-z.plugin.zsh
 
 # zsh-syntax-highlighting - colors commands as you type
 # NOTE: This must be sourced at the end
