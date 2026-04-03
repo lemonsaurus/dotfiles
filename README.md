@@ -3,9 +3,8 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/works_on-my_machine-green?style=flat-square" alt="works on my machine">
-  <img src="https://img.shields.io/badge/powered_by-caffeine_and_spite-red?style=flat-square" alt="hopes and dreams">
-  <img src="https://img.shields.io/badge/PRs-lol_no-critical?style=flat-square" alt="PRs: lol no">
+  <img src="https://img.shields.io/badge/works_on-my_machine-red?style=flat-square" alt="works on my machine">
+  <img src="https://img.shields.io/badge/PRs-lol_no-blue?style=flat-square" alt="PRs: lol no">
 </p>
 
 Opinionated terminal setup for my personal machines. This is public because there's nothing secret here, but it's built entirely around my own preferences — probably not useful to you unless you're curious or want to steal a color scheme.
