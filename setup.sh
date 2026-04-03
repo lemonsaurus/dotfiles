@@ -153,26 +153,57 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
     WIN_USER=$(/mnt/c/Windows/System32/cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
 
     if [ -d "/mnt/c/Users/$WIN_USER" ]; then
-        # Install font on Windows side so Rio/terminal emulators can use it
-        WIN_FONT_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/Microsoft/Windows/Fonts"
-        if ! /bin/ls "$WIN_FONT_DIR"/MesloLGSNerdFont-* &>/dev/null; then
-            info "Installing $FONT_NAME on Windows side..."
-            mkdir -p "$WIN_FONT_DIR"
+        # --- Detect or install a Nerd Font on Windows ---
+        SYS_FONT_DIR="/mnt/c/Windows/Fonts"
+        USER_FONT_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/Microsoft/Windows/Fonts"
+        RIO_FONT=""
+
+        # Look for an existing Nerd Font in system fonts first, then user fonts
+        for font_dir in "$SYS_FONT_DIR" "$USER_FONT_DIR"; do
+            match=$(/bin/ls "$font_dir"/*NerdFont-Regular.ttf 2>/dev/null | head -1)
+            if [ -n "$match" ]; then
+                # Extract family name from filename: FooBarNerdFont-Regular.ttf -> FooBar Nerd Font
+                basename=$(basename "$match" .ttf)                  # FooBarNerdFont-Regular
+                basename=${basename%-Regular}                       # FooBarNerdFont
+                RIO_FONT=$(echo "$basename" | sed 's/NerdFont/ Nerd Font/')  # FooBar Nerd Font
+                ok "Found Nerd Font on Windows: $RIO_FONT"
+                break
+            fi
+        done
+
+        # If no Nerd Font found, install MesloLGS to system fonts (needs admin)
+        if [ -z "$RIO_FONT" ]; then
+            info "No Nerd Font found on Windows — installing $FONT_NAME..."
             MESLO_URL="https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Meslo.tar.xz"
             tmp_archive="$(mktemp)"
             curl -fsSL "$MESLO_URL" -o "$tmp_archive"
-            tar -xJf "$tmp_archive" -C "$WIN_FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
-                || tar -xJf "$tmp_archive" -C "$WIN_FONT_DIR"
+            # Try system fonts first (needs admin), fall back to user fonts
+            if cp /dev/null "$SYS_FONT_DIR/.write-test" 2>/dev/null; then
+                rm -f "$SYS_FONT_DIR/.write-test"
+                tar -xJf "$tmp_archive" -C "$SYS_FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
+                    || tar -xJf "$tmp_archive" -C "$SYS_FONT_DIR"
+                ok "$FONT_NAME installed to system fonts"
+            else
+                mkdir -p "$USER_FONT_DIR"
+                tar -xJf "$tmp_archive" -C "$USER_FONT_DIR" --wildcards 'MesloLGSNerdFont-*' 2>/dev/null \
+                    || tar -xJf "$tmp_archive" -C "$USER_FONT_DIR"
+                warn "$FONT_NAME installed to user fonts — Rio may not see it. Right-click the .ttf files and 'Install for all users' if needed."
+            fi
             rm -f "$tmp_archive"
-            ok "$FONT_NAME installed on Windows (you may need to restart Rio)"
-        else
-            ok "$FONT_NAME already installed on Windows"
+            RIO_FONT="MesloLGS Nerd Font"
         fi
 
+        # --- Deploy Rio config and patch font family ---
         RIO_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/rio"
         mkdir -p "$RIO_DIR/themes"
         deploy_config "$REPO/rio.config.toml" "$RIO_DIR/config.toml" "Rio config"
         deploy_config "$REPO/rio.themes.electron-highlighter.toml" "$RIO_DIR/themes/Electron Highlighter.toml" "Rio theme"
+
+        # Patch Rio config to use the detected/installed font
+        if [ -n "$RIO_FONT" ]; then
+            sed -i "s/family = \"MesloLGS Nerd Font\"/family = \"$RIO_FONT\"/" "$RIO_DIR/config.toml"
+            ok "Rio config set to use font: $RIO_FONT"
+        fi
     else
         warn "Couldn't find Windows user directory. Install Rio config manually."
     fi
