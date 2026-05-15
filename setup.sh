@@ -148,7 +148,7 @@ deploy_config "$REPO/dot.zshrc" "$HOME/.zshrc" ".zshrc"
 
 # --- WSL: Install Rio config on Windows side ---
 if grep -qi microsoft /proc/version 2>/dev/null; then
-    info "WSL detected — installing Rio config on Windows side..."
+    info "WSL detected — installing Rio and winghostty configs on Windows side..."
 
     WIN_USER=$(/mnt/c/Windows/System32/cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r')
 
@@ -204,11 +204,16 @@ if grep -qi microsoft /proc/version 2>/dev/null; then
             sed -i "s/family = \"MesloLGS Nerd Font\"/family = \"$RIO_FONT\"/" "$RIO_DIR/config.toml"
             ok "Rio config set to use font: $RIO_FONT"
         fi
+
+        # --- Deploy winghostty config ---
+        WINGHOSTTY_DIR="/mnt/c/Users/$WIN_USER/AppData/Local/winghostty"
+        mkdir -p "$WINGHOSTTY_DIR"
+        deploy_config "$REPO/winghostty.config.ghostty" "$WINGHOSTTY_DIR/config.ghostty" "winghostty config"
     else
-        warn "Couldn't find Windows user directory. Install Rio config manually."
+        warn "Couldn't find Windows user directory. Install Rio and winghostty configs manually."
     fi
 else
-    info "Not running in WSL — skipping Rio config."
+    info "Not running in WSL — skipping Rio and winghostty configs."
 fi
 
 echo ""

@@ -17,7 +17,7 @@ SSH into any box, run this, and you're home:
 curl -fsSL "https://raw.githubusercontent.com/lemonsaurus/dotfiles/main/setup.sh?$(date +%s)" | bash
 ```
 
-This installs zsh (set as default shell), starship, zsh plugins, eza, and bat, then drops all configs into place. On WSL it also installs the Rio config and theme on the Windows side.
+This installs zsh (set as default shell), starship, zsh plugins, eza, and bat, then drops all configs into place. On WSL it also installs the Rio and winghostty configs on the Windows side.
 
 Restart your terminal (or run `zsh`) and you're good to go.
 
@@ -26,6 +26,7 @@ Restart your terminal (or run `zsh`) and you're good to go.
 - **Starship prompt** config with Catppuccin Mocha theme and powerline-style segments
 - **Zsh** config with autosuggestions, syntax highlighting, directory jumping, and aliases for `eza`/`bat`
 - **Rio terminal** config and Electron Highlighter color theme (for WSL)
+- **winghostty** config with AltGr workarounds and Norwegian dead-key fixes (for WSL)
 
 ## Font
 
