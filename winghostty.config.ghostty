@@ -1,0 +1,51 @@
+# winghostty config — reload with Ctrl+Shift+,
+
+# Catppuccin: auto-switches with system light/dark mode.
+theme = Synthwave Everything
+
+# Font
+font-family = Agave Nerd Font
+font-size = 15
+
+# Window chrome
+background-opacity = 1.0
+window-padding-x = 10
+window-padding-y = 8
+window-padding-balance = true
+window-decoration = true
+
+# Cursor
+cursor-style = bar
+cursor-style-blink = false
+
+# Misc niceties
+mouse-hide-while-typing = true
+copy-on-select = true
+confirm-close-surface = false
+
+# AltGr workaround (Norwegian layout). winghostty treats AltGr as ctrl+alt
+# instead of letting it compose, so we re-bind the combos manually.
+keybind = ctrl+alt+seven=text:{
+keybind = ctrl+alt+eight=text:[
+keybind = ctrl+alt+nine=text:]
+keybind = ctrl+alt+zero=text:}
+keybind = ctrl+alt+two=text:@
+keybind = ctrl+alt+four=text:$
+keybind = ctrl+alt+five=text:€
+keybind = ctrl+alt+plus=text:±
+
+# Dead keys: insert the bare character on the first press instead of
+# waiting for a follow-up space.
+# winghostty on Norwegian Windows names OEM keys by their US-VK position,
+# so the names below look wrong but are correct for this keyboard:
+#   bracket_left  = the \/`/´ key (top row, right of +)
+#   semicolon     = the ¨/^/~ key (right of å)
+
+# \ key — backtick on Shift, forwardtick on AltGr (literal, no dead-key wait)
+keybind = shift+bracket_left=text:`
+keybind = ctrl+alt+bracket_left=text:´
+
+# ¨ key — literal ¨/^/~ on first press instead of dead-key composition
+keybind = semicolon=text:¨
+keybind = shift+semicolon=text:^
+keybind = ctrl+alt+semicolon=text:~
