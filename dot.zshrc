@@ -30,6 +30,7 @@ alias cat='batcat --style=auto'
 
 # More aliases!
 alias explore='explorer.exe'
+alias dockerkill='docker ps -q | xargs -r docker kill'
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
@@ -43,14 +44,27 @@ case ":$PATH:" in
 esac
 # pnpm end
 
-# Automatically switch to the right node version if .nvmrc exists
-cdnvm() {
-    builtin cd "$@" || return
-    if [[ -f .nvmrc && -r .nvmrc ]]; then
-        nvm use
-    fi
+# Automatically switch node version when .nvmrc is found in cwd or any parent
+load_nvmrc() {
+    local dir="$PWD"
+    while [[ "$dir" != "/" ]]; do
+        if [[ -r "$dir/.nvmrc" ]]; then
+            local want="$(<"$dir/.nvmrc")"
+            local have="$(nvm version)"
+            local target="$(nvm version "$want")"
+            if [[ "$target" == "N/A" ]]; then
+                nvm install "$want"
+            elif [[ "$target" != "$have" ]]; then
+                nvm use "$want"
+            fi
+            return
+        fi
+        dir="${dir:h}"
+    done
 }
-alias cd='cdnvm'
+autoload -U add-zsh-hook
+add-zsh-hook chpwd load_nvmrc
+load_nvmrc
 
 # bun completions
 [ -s "/home/lemon/.bun/_bun" ] && source "/home/lemon/.bun/_bun"
