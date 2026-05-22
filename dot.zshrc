@@ -74,3 +74,7 @@ export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
 export PATH="/usr/local/bin:$PATH"
+
+# carla-sync: pull ~/.agents on shell start (if safe). See ~/.agents/README.md.
+# Runs in the background so it never slows the shell.
+[[ -x "$HOME/.agents/bin/carla-sync" ]] && "$HOME/.agents/bin/carla-sync" &!
