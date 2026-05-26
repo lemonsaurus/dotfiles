@@ -1,5 +1,8 @@
 # winghostty config — reload with Ctrl+Shift+,
 
+# Boot straight into WSL instead of the auto-detected default (PowerShell).
+command = wsl.exe
+
 # Catppuccin: auto-switches with system light/dark mode.
 theme = Synthwave Everything
 
