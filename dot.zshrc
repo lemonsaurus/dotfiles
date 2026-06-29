@@ -78,3 +78,11 @@ export PATH="/usr/local/bin:$PATH"
 # carla-sync: pull ~/.agents on shell start (if safe). See ~/.agents/README.md.
 # Runs in the background so it never slows the shell.
 [[ -x "$HOME/.agents/bin/carla-sync" ]] && "$HOME/.agents/bin/carla-sync" &!
+
+
+# dotagents: load Pi private integration tokens
+if [ -f "$HOME/.pi/agent/private.env" ]; then
+  set -a
+  source "$HOME/.pi/agent/private.env"
+  set +a
+fi
