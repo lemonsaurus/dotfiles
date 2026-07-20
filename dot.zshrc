@@ -25,11 +25,19 @@ alias lt='eza --tree --icons'
 # Open multiple folders in VSCode
 codeall() { for dir in "$@"; do code "$dir"; done }
 
-# Alias for bat (modern cat)
-alias cat='batcat --style=auto'
+# Alias for bat (modern cat) — Ubuntu names it batcat, brew names it bat
+if command -v batcat >/dev/null; then
+  alias cat='batcat --style=auto'
+elif command -v bat >/dev/null; then
+  alias cat='bat --style=auto'
+fi
 
-# More aliases!
-alias explore='explorer.exe'
+# More aliases! explorer.exe on WSL, xdg-open on native Linux
+if command -v explorer.exe >/dev/null; then
+  alias explore='explorer.exe'
+else
+  alias explore='xdg-open'
+fi
 alias dockerkill='docker ps -q | xargs -r docker kill'
 
 export NVM_DIR="$HOME/.nvm"

@@ -11,7 +11,9 @@ error() { printf '\033[1;31m=> %s\033[0m\n' "$*"; exit 1; }
 # --- Install zsh ---
 if ! command -v zsh &>/dev/null; then
     info "Installing zsh..."
-    if command -v apt-get &>/dev/null; then
+    if command -v brew &>/dev/null; then
+        brew install zsh
+    elif command -v apt-get &>/dev/null; then
         sudo apt-get update -qq && sudo apt-get install -y -qq zsh
     elif command -v dnf &>/dev/null; then
         sudo dnf install -y zsh
@@ -37,14 +39,20 @@ fi
 # --- Install starship ---
 if ! command -v starship &>/dev/null; then
     info "Installing starship..."
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    if command -v brew &>/dev/null; then
+        brew install starship
+    else
+        curl -sS https://starship.rs/install.sh | sh -s -- -y
+    fi
 fi
 ok "starship is installed"
 
 # --- Install eza ---
 if ! command -v eza &>/dev/null; then
     info "Installing eza..."
-    if command -v apt-get &>/dev/null; then
+    if command -v brew &>/dev/null; then
+        brew install eza
+    elif command -v apt-get &>/dev/null; then
         sudo apt-get install -y -qq eza 2>/dev/null || {
             # eza might not be in default repos on older Ubuntu
             sudo mkdir -p /etc/apt/keyrings
@@ -66,7 +74,9 @@ fi
 # --- Install bat ---
 if ! command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
     info "Installing bat..."
-    if command -v apt-get &>/dev/null; then
+    if command -v brew &>/dev/null; then
+        brew install bat
+    elif command -v apt-get &>/dev/null; then
         sudo apt-get install -y -qq bat
     elif command -v dnf &>/dev/null; then
         sudo dnf install -y bat
