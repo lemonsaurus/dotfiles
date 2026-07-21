@@ -1,7 +1,7 @@
 eval "$(starship init zsh)"
 
-# opencode
-export PATH=/home/lemon/.opencode/bin:$PATH
+# opencode (WSL box only; skipped where not installed)
+[ -d "$HOME/.opencode/bin" ] && export PATH="$HOME/.opencode/bin:$PATH"
 
 # Add local bin to PATH for eza and bat
 export PATH=$HOME/.local/bin:$PATH
@@ -32,24 +32,30 @@ elif command -v bat >/dev/null; then
   alias cat='bat --style=auto'
 fi
 
-# More aliases! explorer.exe on WSL, xdg-open on native Linux
-if command -v explorer.exe >/dev/null; then
-  alias explore='explorer.exe'
-else
-  alias explore='xdg-open'
-fi
+# explore {path}: open the file explorer at that path (WSL or native Linux)
+explore() {
+  local target="${1:-.}"
+  [ -f "$target" ] && target="$(dirname "$target")"
+  if command -v explorer.exe >/dev/null; then
+    explorer.exe "$(wslpath -w "$target")" || true
+  else
+    xdg-open "$target"
+  fi
+}
 alias dockerkill='docker ps -q | xargs -r docker kill'
 
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
 
-# pnpm
-export PNPM_HOME="/home/lemon/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
+# pnpm (skipped where not installed)
+export PNPM_HOME="$HOME/.local/share/pnpm"
+if [ -d "$PNPM_HOME" ]; then
+  case ":$PATH:" in
+    *":$PNPM_HOME:"*) ;;
+    *) export PATH="$PNPM_HOME:$PATH" ;;
+  esac
+fi
 # pnpm end
 
 # Automatically switch node version when .nvmrc is found in cwd or any parent
@@ -70,23 +76,28 @@ load_nvmrc() {
         dir="${dir:h}"
     done
 }
-autoload -U add-zsh-hook
-add-zsh-hook chpwd load_nvmrc
-load_nvmrc
+if command -v nvm >/dev/null; then
+  autoload -U add-zsh-hook
+  add-zsh-hook chpwd load_nvmrc
+  load_nvmrc
+fi
 
-# bun completions
-[ -s "/home/lemon/.bun/_bun" ] && source "/home/lemon/.bun/_bun"
-
-# bun
+# bun (skipped where not installed)
 export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-export PATH="/usr/local/bin:$PATH"
+if [ -d "$BUN_INSTALL" ]; then
+  [ -s "$BUN_INSTALL/_bun" ] && source "$BUN_INSTALL/_bun"
+  export PATH="$BUN_INSTALL/bin:$PATH"
+fi
+
 export PATH="/usr/local/bin:$PATH"
 
 # carla-sync: pull ~/.agents on shell start (if safe). See ~/.agents/README.md.
 # Runs in the background so it never slows the shell.
 [[ -x "$HOME/.agents/bin/carla-sync" ]] && "$HOME/.agents/bin/carla-sync" &!
 
+
+# Pi
+export PATH="$HOME/.local/share/pi-node/current/bin:$PATH"
 
 # dotagents: load Pi private integration tokens
 if [ -f "$HOME/.pi/agent/private.env" ]; then
