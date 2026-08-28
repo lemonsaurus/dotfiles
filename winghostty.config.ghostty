@@ -23,6 +23,7 @@ cursor-style-blink = false
 
 # Misc niceties
 mouse-hide-while-typing = true
+mouse-shift-capture = never
 copy-on-select = true
 confirm-close-surface = false
 
