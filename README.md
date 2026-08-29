@@ -9,6 +9,10 @@
 
 Opinionated terminal setup for my personal machines. This is public because there's nothing secret here, but it's built entirely around my own preferences. Steal whatever you want.
 
+## Development workflow
+
+Work directly on `main`. Don't create feature branches, worktrees, or pull requests. Start with a clean checkout; if it isn't clean, finish or resolve that work first. Commit every finished change and push `main`. Don't leave dirty files behind.
+
 ## Quick setup
 
 SSH into any box, run this, and you're home:
