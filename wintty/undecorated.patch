@@ -1,0 +1,84 @@
+diff --git a/windows/Ghostty/MainWindow.xaml.cs b/windows/Ghostty/MainWindow.xaml.cs
+index 6d8c36807..4b209b9bb 100644
+--- a/windows/Ghostty/MainWindow.xaml.cs
++++ b/windows/Ghostty/MainWindow.xaml.cs
+@@ -1576,6 +1576,8 @@ public sealed partial class MainWindow : Window
+ 
+         if (IsQuickTerminal)
+             ApplyQuickTerminalBehaviour();
++        else if (!_configService.WindowDecorations)
++            ApplyUndecorated();
+ 
+         // Kill the Win32 Alt-menu beep that the Alt+Shift split chords
+         // would otherwise ring on every press. The input-site child HWND
+@@ -3933,7 +3935,11 @@ public sealed partial class MainWindow : Window
+         foreach (var tab in _tabManager.Tabs)
+         {
+             SolidColorBrush borderBrush;
+-            if (ReferenceEquals(tab, active) && tab.Color != TabColor.None)
++            if (!_configService.WindowDecorations)
++            {
++                borderBrush = new SolidColorBrush(Microsoft.UI.Colors.Transparent);
++            }
++            else if (ReferenceEquals(tab, active) && tab.Color != TabColor.None)
+             {
+                 var preset = TabColorPalette.Border(tab.Color);
+                 borderBrush = Tabs.TabColorBrush.FromPackedRgb(LegibleChromeAccent(
+@@ -3950,7 +3956,9 @@ public sealed partial class MainWindow : Window
+             // its deferred Loaded/SurfaceSpawned, or the glow is configured
+             // too late to run: WinUI fires Loaded on a later dispatcher turn,
+             // after this method has returned.
+-            paneHost.SetStartupGlowConfig(_configService.PaneStartupGlow, borderBrush.Color, glowLead);
++            paneHost.SetStartupGlowConfig(
++                _configService.PaneStartupGlow && _configService.WindowDecorations,
++                borderBrush.Color, glowLead);
+         }
+ 
+         _horizontalTabHost.RefreshTabColors();
+@@ -4477,6 +4485,23 @@ public sealed partial class MainWindow : Window
+         ApplyVerticalTitleBarChrome();
+     }
+ 
++    /// <summary>
++    /// <c>window-decoration = none</c> on a regular window: no tab strip, no
++    /// title bar or caption buttons, and a resizable border only. Tabs stay
++    /// reachable through keybinds and the command palette.
++    /// </summary>
++    private void ApplyUndecorated()
++    {
++        if (AppWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter presenter)
++            presenter.SetBorderAndTitleBar(hasBorder: true, hasTitleBar: false);
++
++        _titleBar.SetCaptionless(true);
++        _layout.SuppressVerticalTitleBar(true, _verticalTabsVisible);
++        _layout.SetStripHidden(true, _verticalTabsVisible);
++        _stripForciblyHidden = true;
++        RefreshBackdropChrome();
++    }
++
+     /// <summary>
+     /// Toggle between fullscreen and default window presenter. Uses
+     /// <see cref="Microsoft.UI.Windowing.AppWindowPresenterKind"/> so
+diff --git a/windows/Ghostty/Services/ConfigService.cs b/windows/Ghostty/Services/ConfigService.cs
+index 0bac88082..87e9913f5 100644
+--- a/windows/Ghostty/Services/ConfigService.cs
++++ b/windows/Ghostty/Services/ConfigService.cs
+@@ -144,6 +144,9 @@ internal sealed partial class ConfigService : IConfigService, Ghostty.Core.Profi
+     // Default true; `pane-startup-glow = false` turns it off. Read by
+     // MainWindow and pushed to each PaneHost with the tab border colors.
+     public bool PaneStartupGlow { get; private set; } = true;
++    // `window-decoration = none` (or false) drops the tab strip, caption and
++    // pane borders from regular windows. Read at window creation.
++    public bool WindowDecorations { get; private set; } = true;
+     public bool CommandPaletteGroupCommands { get; private set; }
+     public bool WindowsHighContrast { get; private set; } = true;
+     public string CommandPaletteBackground { get; private set; } = "acrylic";
+@@ -1336,6 +1339,8 @@ internal sealed partial class ConfigService : IConfigService, Ghostty.Core.Profi
+         PaneStartupGlow = WindowsOnlyKeyParsers.ParseBool(
+             GetFileValue("pane-startup-glow", ""),
+             defaultValue: true);
++        WindowDecorations = GetFileValue("window-decoration", "auto").Trim().ToLowerInvariant()
++            is not ("none" or "false");
+         CommandPaletteGroupCommands = WindowsOnlyKeyParsers.ParseBool(
+             GetFileValue("command-palette-group-commands", ""),
+             defaultValue: false);

@@ -1,0 +1,32 @@
+# Wintty config. Reload with Ctrl+Shift+,
+
+theme = Synthwave Everything
+
+font-family = Agave Nerd Font
+font-size = 15
+
+# WSL as the default profile. A plain `command =` does not reach the first
+# pane yet (deblasis/wintty#1136).
+profile.ubuntu.name = Ubuntu
+profile.ubuntu.command = wsl.exe -d Ubuntu --cd ~
+default-profile = ubuntu
+
+# Opaque chrome instead of the default frosted acrylic.
+background-opacity = 1.0
+background-style = solid
+
+# No tab strip, caption or pane borders. Needs undecorated.patch.
+window-decoration = none
+
+window-padding-x = 10
+window-padding-y = 8
+window-padding-balance = true
+window-padding-color = extend
+
+cursor-style = bar
+cursor-style-blink = false
+
+mouse-hide-while-typing = true
+mouse-shift-capture = never
+copy-on-select = true
+confirm-close-surface = false
