@@ -105,3 +105,6 @@ if [ -f "$HOME/.pi/agent/private.env" ]; then
   source "$HOME/.pi/agent/private.env"
   set +a
 fi
+
+# Machine-specific settings kept out of the repo
+[ -f "$HOME/.zshrc.local" ] && source "$HOME/.zshrc.local"
