@@ -21,7 +21,7 @@ SSH into any box, run this, and you're home:
 curl -fsSL "https://raw.githubusercontent.com/lemonsaurus/dotfiles/main/setup.sh?$(date +%s)" | bash
 ```
 
-This installs zsh (set as default shell), starship, zsh plugins, eza, and bat, then drops all configs into place. `~/.zshrc` sources `~/.zshrc.local` for settings that belong to one machine. On GNOME it installs and enables the Bigscreen Notifications extension, which loads at next login. On WSL it also installs the Rio, winghostty, and Wintty configs on the Windows side.
+This installs zsh (set as default shell), starship, zsh plugins, eza, and bat, then drops all configs into place. `~/.zshrc` sources `~/.zshrc.local` for settings that belong to one machine. On GNOME it installs and enables the Bigscreen Notifications and Smile Summon extensions, which load at next login. On WSL it also installs the Rio, winghostty, and Wintty configs on the Windows side.
 
 Restart your terminal (or run `zsh`) and you're good to go.
 
@@ -30,6 +30,7 @@ Restart your terminal (or run `zsh`) and you're good to go.
 - **Starship prompt** config with Catppuccin Mocha theme and powerline-style segments
 - **Zsh** config with autosuggestions, syntax highlighting, directory jumping, and aliases for `eza`/`bat`
 - **Bigscreen Notifications** GNOME Shell extension that shows notification banners in the bottom right of the largest monitor, without making it primary
+- **Smile Summon** GNOME Shell extension that toggles the [Smile](https://github.com/mijorus/smile) emoji picker at the pointer with `Super+.`
 - **Rio terminal** config and Electron Highlighter color theme (for WSL)
 - **winghostty** config with AltGr workarounds and Norwegian dead-key fixes (for WSL)
 - **Wintty** config, plus scripts that build [deblasis/wintty](https://github.com/deblasis/wintty) from source with a borderless-window patch and a rainbow icon (for WSL)

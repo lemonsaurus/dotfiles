@@ -1,0 +1,8 @@
+{
+  "uuid": "smile-summon@lemon",
+  "name": "Smile Summon",
+  "description": "Toggle the Smile emoji picker at the pointer with a keybinding.",
+  "shell-version": ["50"],
+  "settings-schema": "org.gnome.shell.extensions.smile-summon",
+  "url": ""
+}

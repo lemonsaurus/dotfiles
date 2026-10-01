@@ -157,12 +157,17 @@ deploy_config "$REPO/dot.starship.toml" "$HOME/.config/starship.toml" "starship.
 deploy_config "$REPO/dot.zshrc" "$HOME/.zshrc" ".zshrc"
 
 # --- GNOME: Install Shell extensions (loaded at next login) ---
-if command -v gnome-shell &>/dev/null; then
-    uuid="bigscreen-notifications@lemon"
-    for file in metadata.json extension.js; do
-        deploy_config "$REPO/gnome-extensions/$uuid/$file" "$HOME/.local/share/gnome-shell/extensions/$uuid/$file" "$uuid $file"
+install_gnome_extension() {
+    local uuid="$1"; shift
+    local dir="$HOME/.local/share/gnome-shell/extensions/$uuid"
+    for file in metadata.json extension.js "$@"; do
+        deploy_config "$REPO/gnome-extensions/$uuid/$file" "$dir/$file" "$uuid $file"
     done
+    if [ -d "$dir/schemas" ]; then
+        glib-compile-schemas "$dir/schemas"
+    fi
 
+    local enabled
     enabled="$(gsettings get org.gnome.shell enabled-extensions)"
     if [[ "$enabled" == "@as []" ]]; then
         gsettings set org.gnome.shell enabled-extensions "['$uuid']"
@@ -170,6 +175,11 @@ if command -v gnome-shell &>/dev/null; then
         gsettings set org.gnome.shell enabled-extensions "${enabled%]}, '$uuid']"
     fi
     ok "$uuid enabled"
+}
+
+if command -v gnome-shell &>/dev/null; then
+    install_gnome_extension "bigscreen-notifications@lemon"
+    install_gnome_extension "smile-summon@lemon" "schemas/org.gnome.shell.extensions.smile-summon.gschema.xml"
 fi
 
 # --- WSL: Install Rio config on Windows side ---

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.smile-summon" path="/org/gnome/shell/extensions/smile-summon/">
+    <key name="summon-smile" type="as">
+      <default><![CDATA[['<Super>period']]]></default>
+      <summary>Toggle the Smile emoji picker</summary>
+      <description>Summon Smile at the pointer, or minimize it if focused.</description>
+    </key>
+  </schema>
+</schemalist>
