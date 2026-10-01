@@ -1,0 +1,7 @@
+{
+  "uuid": "bigscreen-notifications@lemon",
+  "name": "Bigscreen Notifications",
+  "description": "Show notification banners in the bottom right of the largest monitor.",
+  "shell-version": ["50"],
+  "url": ""
+}

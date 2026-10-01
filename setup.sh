@@ -156,6 +156,22 @@ deploy_config() {
 deploy_config "$REPO/dot.starship.toml" "$HOME/.config/starship.toml" "starship.toml"
 deploy_config "$REPO/dot.zshrc" "$HOME/.zshrc" ".zshrc"
 
+# --- GNOME: Install Shell extensions (loaded at next login) ---
+if command -v gnome-shell &>/dev/null; then
+    uuid="bigscreen-notifications@lemon"
+    for file in metadata.json extension.js; do
+        deploy_config "$REPO/gnome-extensions/$uuid/$file" "$HOME/.local/share/gnome-shell/extensions/$uuid/$file" "$uuid $file"
+    done
+
+    enabled="$(gsettings get org.gnome.shell enabled-extensions)"
+    if [[ "$enabled" == "@as []" ]]; then
+        gsettings set org.gnome.shell enabled-extensions "['$uuid']"
+    elif [[ "$enabled" != *"'$uuid'"* ]]; then
+        gsettings set org.gnome.shell enabled-extensions "${enabled%]}, '$uuid']"
+    fi
+    ok "$uuid enabled"
+fi
+
 # --- WSL: Install Rio config on Windows side ---
 if grep -qi microsoft /proc/version 2>/dev/null; then
     info "WSL detected — installing Rio, winghostty, and Wintty configs on Windows side..."
